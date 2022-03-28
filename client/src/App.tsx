@@ -9,7 +9,9 @@ import './app.less';
 
 function App() {
     return (
-        <div className='App'>
+        <div className='App w-screen h-screen'>
+            <div className='h-5 bg-slate-50 shadow-md header'></div>
+            <div className='content'>
             <Router>
                 <Routes>
                     <Route path='/' element={<Home></Home>}></Route>
@@ -18,6 +20,8 @@ function App() {
                     <Route path='/test/abc' element={<TestViewCopy></TestViewCopy>}></Route>
                 </Routes>
             </Router>
+            </div>
+            <div className='h-5 bg-slate-50 shadow-md footer'></div>
         </div>
     );
 }
