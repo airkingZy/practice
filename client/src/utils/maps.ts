@@ -1,4 +1,4 @@
-import {fabric} from 'fabric'
+import { fabric } from 'fabric';
 /**
  * 获取地图种子
  * @param level
@@ -182,48 +182,78 @@ function getAroundIndex(param: getAroundIndexType) {
 function getRamdomNumber(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-interface initBaseLineType{
-    width:number,
-     height:number,
-     xNumber:number,
-     yNumber:number,
-     cubeArea?:number
+interface initBaseLineType {
+    width: number;
+    height: number;
+    xNumber: number;
+    yNumber: number;
+    cubeArea?: number;
 }
 class drawMap {
-    public fabricCanvas: any
-    public domId: string
-    public mapWitdh: number
-    public mapHeight: number
+    public fabricCanvas: any;
+    public domId: string;
+    public mapWitdh: number;
+    public mapHeight: number;
+    public cubeArea: number;
     constructor(domId: string) {
-        this.fabricCanvas = null
-        this.domId = domId
-        this.mapWitdh = 0
-        this.mapHeight = 0
+        this.fabricCanvas = null;
+        this.domId = domId;
+        this.mapWitdh = 0;
+        this.mapHeight = 0;
+        this.cubeArea = 10;
     }
-    initBaseMap(width:number, height:number,bg:string){
-        this.mapWitdh = width
-        this.mapHeight = height
-        this.fabricCanvas = new fabric.Canvas(this.domId,{ // eslint-disable-line
-            backgroundColor: bg,width,height
-        })
+    initBaseMap(width: number, height: number, bg: string) {
+        this.mapWitdh = width;
+        this.mapHeight = height;
+        this.fabricCanvas = new fabric.Canvas(this.domId, {
+            // eslint-disable-line
+            backgroundColor: bg,
+            width,
+            height,
+        });
     }
-    initBaseLine(params: initBaseLineType){
-        const {cubeArea=10,width,height,xNumber,yNumber} =  params
+    initBaseLine(params: initBaseLineType) {
+        const { cubeArea = 10, width, height, xNumber, yNumber } = params;
+        this.cubeArea = cubeArea;
         const lineDef = {
             fill: 'black',
             stroke: 'rgba(0, 0, 0, 0.1)',
             strokeWidth: 1,
-            selectable: false
+            selectable: false,
+        };
+        const xLoop = width / cubeArea < xNumber ? xNumber : Math.ceil(width / cubeArea);
+        const yLoop = height / cubeArea < yNumber ? yNumber : Math.ceil(height / cubeArea);
+        for (let i = 0; i < xLoop; i++) {
+            const line = new fabric.Line([i * cubeArea, 0, i * cubeArea, width], lineDef);
+            this.fabricCanvas.add(line);
         }
-        const xLoop = width/cubeArea < xNumber ? xNumber: Math.ceil(width/cubeArea)
-        const yLoop = height/cubeArea < yNumber ? yNumber: Math.ceil(height/cubeArea)
-        for(let i = 0;i< xLoop;i++){
-            const line = new fabric.Line([i*cubeArea,0,i*cubeArea,width],lineDef );
-            this.fabricCanvas.add(line)
+        for (let i = 0; i < yLoop; i++) {
+            const line = new fabric.Line([0, i * cubeArea, width, i * cubeArea], lineDef);
+            this.fabricCanvas.add(line);
         }
-        for(let i = 0;i< yLoop;i++){
-            const line = new fabric.Line([0,i*cubeArea,width,i*cubeArea],lineDef );
-            this.fabricCanvas.add(line)
+    }
+    createChildMap(list: number[][]) {
+        for (let i = 0; i < list.length; i++) {
+            for (let k = 0; k < list[i].length; k++) {
+                if (list[i][k] !== 0) {
+                    const area = new fabric.Rect({
+                        left: k * this.cubeArea,
+                        top: i * this.cubeArea,
+                        fill: this.getAreaColor(list[i][k]),
+                        width: this.cubeArea,
+                        height: this.cubeArea,
+                    });
+                    this.fabricCanvas.add(area);
+                }
+            }
+        }
+    }
+    getAreaColor(type: number) {
+        switch (type) {
+            case 1:
+                return 'red';
+            case 2:
+                return 'blue';
         }
     }
 }
