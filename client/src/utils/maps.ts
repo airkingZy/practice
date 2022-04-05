@@ -1,7 +1,4 @@
-import { isDisabled } from '@testing-library/user-event/dist/utils';
-import { rejects } from 'assert';
-import { resolve } from 'path';
-
+import {fabric} from 'fabric'
 /**
  * 获取地图种子
  * @param level
@@ -185,89 +182,49 @@ function getAroundIndex(param: getAroundIndexType) {
 function getRamdomNumber(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-// function drawCanvas(id: string) {
-//     const canvas: HTMLCanvasElement = document.getElementById('canvas');
-//     const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
-//     //描绘背景
-//     const gradient = ctx.createLinearGradient(0, 0, 0, 300); //createLinearGradient() 方法创建线性的渐变对象。
-//     gradient.addColorStop(0, '#e0e0e0');
-//     gradient.addColorStop(1, '#ffffff');
-//     ctx.fillStyle = gradient;
-//     // eslint-disable-next-line
-//     ctx.fillRect = (0, 0, canvas.width, canvas.height); // eslint-disable-line
-//     //描绘边框
-//     const grid_cols = 10;
-//     const grid_rows = 10;
-//     const cell_height = canvas.height / grid_rows;
-//     const cell_width = canvas.width / grid_cols;
-//     ctx.lineWidth = 1;
-//     ctx.strokeStyle = '#a0a0a0';
-//     //结束边框描绘
-//     ctx.beginPath();
-//     //准备画横线
-//     for (let col = 0; col <= grid_cols; col++) {
-//         const x = col * cell_width;
-//         ctx.moveTo(x, 0);
-//         ctx.lineTo(x, canvas.height);
-//     }
-//     //准备画竖线
-//     for (let row = 0; row <= grid_rows; row++) {
-//         const y = row * cell_height;
-//         ctx.moveTo(0, y);
-//         ctx.lineTo(canvas.width, y);
-//     }
-//     //完成描绘
-//     ctx.stroke();
-// }
-class drawCanvas {
-    public element: HTMLCanvasElement;
-    public ctx: CanvasRenderingContext2D;
-    public list: number[][];
-    constructor(domId: string, list: number[][]) {
-        this.element = document.getElementById(domId) as HTMLCanvasElement;
-        this.ctx = this.element.getContext('2d') as CanvasRenderingContext2D;
-        this.list = list;
+interface initBaseLineType{
+    width:number,
+     height:number,
+     xNumber:number,
+     yNumber:number,
+     cubeArea?:number
+}
+class drawMap {
+    public fabricCanvas: any
+    public domId: string
+    public mapWitdh: number
+    public mapHeight: number
+    constructor(domId: string) {
+        this.fabricCanvas = null
+        this.domId = domId
+        this.mapWitdh = 0
+        this.mapHeight = 0
     }
-    draw() {
-        //描绘背景
-        // const gradient = this.ctx.createLinearGradient(0, 0, 0, 300); //createLinearGradient() 方法创建线性的渐变对象。
-        // gradient.addColorStop(0, '#e0e0e0');
-        // gradient.addColorStop(1, '#e0e0e0');
-        // this.ctx.fillStyle = gradient;
-        const originX = 0;
-        const originY = 0;
-        this.ctx.fillStyle = '#fff';
-        this.ctx.fillRect(originX, originY, this.element.width, this.element.height);
-        //描绘边框
-        const grid_cols = this.list[0].length;
-        const grid_rows = this.list.length;
-        const cell_height = this.element.height / grid_rows;
-        const cell_width = this.element.width / grid_cols;
-        // this.ctx.lineWidth = 0.15;
-        // this.ctx.strokeStyle = '#000000';
-        //结束边框描绘
-        this.ctx.beginPath();
-        this.ctx.moveTo(200, 0);
-        this.ctx.lineTo(200 + 0.5, this.element.height);
-        //准备画横线
-        // for (let col = 10.5; col <= this.element.width; col += 10) {
-        //     // const x = col * cell_width;
-        //     this.ctx.moveTo(col, 0);
-        //     this.ctx.lineTo(col, this.element.height);
-        // }
-        // for (let j = 10.5; j < this.element.height; j += 10) {
-        //     this.ctx.moveTo(0, j);
-        //     this.ctx.lineTo(this.element.width, j);
-        // }
-
-        //准备画竖线
-        // for (let row = 0; row <= grid_rows; row++) {
-        //     const y = row * cell_height;
-        //     this.ctx.moveTo(0, y);
-        //     this.ctx.lineTo(this.element.width, y);
-        // }
-        //完成描绘
-        this.ctx.stroke();
+    initBaseMap(width:number, height:number,bg:string){
+        this.mapWitdh = width
+        this.mapHeight = height
+        this.fabricCanvas = new fabric.Canvas(this.domId,{ // eslint-disable-line
+            backgroundColor: bg,width,height
+        })
+    }
+    initBaseLine(params: initBaseLineType){
+        const {cubeArea=10,width,height,xNumber,yNumber} =  params
+        const lineDef = {
+            fill: 'black',
+            stroke: 'rgba(0, 0, 0, 0.1)',
+            strokeWidth: 1,
+            selectable: false
+        }
+        const xLoop = width/cubeArea < xNumber ? xNumber: Math.ceil(width/cubeArea)
+        const yLoop = height/cubeArea < yNumber ? yNumber: Math.ceil(height/cubeArea)
+        for(let i = 0;i< xLoop;i++){
+            const line = new fabric.Line([i*cubeArea,0,i*cubeArea,width],lineDef );
+            this.fabricCanvas.add(line)
+        }
+        for(let i = 0;i< yLoop;i++){
+            const line = new fabric.Line([0,i*cubeArea,width,i*cubeArea],lineDef );
+            this.fabricCanvas.add(line)
+        }
     }
 }
-export { mapSeed, drawCanvas };
+export { mapSeed, drawMap };
